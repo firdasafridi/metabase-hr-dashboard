@@ -1,0 +1,30 @@
+# PostgreSQL Database Service
+# Hostname: db (container name in docker network)
+# Port: 5432 (internal), 5433 (external)
+# Default Database: postgres
+services:
+  db:
+    image: mirror.gcr.io/library/postgres:15
+    container_name: postgres_hr
+    env_file:
+      - .env
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+
+  # Metabase Service
+  # Access URL: http://localhost:3000
+  # Database connection settings in Metabase setup:
+  # Host: db
+  # Port: 5432 (use internal port)
+  # Database name: postgres (or as specified in .env)
+  metabase:
+    image: mirror.gcr.io/metabase/metabase:latest
+    container_name: metabase_hr
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    restart: unless-stopped
